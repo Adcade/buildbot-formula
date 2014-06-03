@@ -12,7 +12,7 @@ buildbot_slave_check:
 buildbot_slave_pip:
   pip.installed:
     - name: buildbot-slave
-    - user: buildbot
+    - user: {{ base_config('user') }}
     - bin_env: {{ base_config('home') }}/bin/pip
     - require:
       - sls: buildbot.base
@@ -20,7 +20,7 @@ buildbot_slave_pip:
 buildbot_slave:
   cmd.wait:
     - name: 'buildslave create-slave slave localhost:9989 example-slave pass'
-    - user: buildbot
+    - user:{{ base_config('user') }}
     - cwd:  {{ base_config('home') }}
     - env:
       - PATH: '$PATH:/opt/buildbot/bin'

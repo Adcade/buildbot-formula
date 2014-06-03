@@ -12,7 +12,7 @@ buildbot_check_master:
 buildbot_master:
   cmd.wait:
     - name: buildbot create-master master
-    - user: buildbot
+    - user: {{ base_config('user') }}
     - cwd: {{ base_config('home') }}
     - env:
       - PATH: '$PATH:/opt/buildbot/bin'
@@ -22,8 +22,8 @@ buildbot_master:
 buildbot_master_config:
   file.managed:
     - name: /opt/buildbot/master/master.cfg
-    - user: buildbot
-    - group: buildbot
+    - user: {{ base_config('user') }}
+    - group:  {{ base_config('user') }}
     - template: jinja
     - mode: 644
     - source: salt://buildbot/files/master.cfg
