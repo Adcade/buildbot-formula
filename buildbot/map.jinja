@@ -1,0 +1,9 @@
+{% set buildbot = salt['grains.filter_by']({
+    'Debian': {
+        'pip': 'python-pip',
+    },
+    'RedHat': {
+        'pip': 'python-pip',
+    },
+}, merge=salt['pillar.get']('buildbot:lookup')) %}
+
