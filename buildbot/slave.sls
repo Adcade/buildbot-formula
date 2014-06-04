@@ -1,10 +1,18 @@
-{% from 'buildbot/config.jinja' import base_config with context %}
+{% from 'buildbot/config.jinja' import base_config, slave_config with context %}
+
+{% set master_name = slave_config('master_name') %}
+{% set master_port = slave_config('master_port') %}
+{% set slave_name = slave_config('slave_name') %}
+{% set slave_password = slave_config('slave_password') %}
+
+{% set home = base_config('home') %}
+{% set user = base_config('user') %}
 
 {% if base_config('install_slave') == 'true' %}
 
 buildbot_slave_check:
   cmd.run:
-    - name: "[ -d {{ base_config('home') }}/slave ]; if [ $? == 1 ]; then echo -e '\nchanged=true'; fi"
+    - name: "[ -d {{ home }}/slave ]; if [ $? == 1 ]; then echo -e '\nchanged=true'; fi"
     - stateful: True
     - require:
       - sls: buildbot.base
@@ -12,18 +20,18 @@ buildbot_slave_check:
 buildbot_slave_pip:
   pip.installed:
     - name: buildbot-slave
-    - user: {{ base_config('user') }}
-    - bin_env: {{ base_config('home') }}/bin/pip
+    - user: {{ user }}
+    - bin_env: {{ home }}/bin/pip
     - require:
       - sls: buildbot.base
 
 buildbot_slave:
   cmd.wait:
-    - name: 'buildslave create-slave slave localhost:9989 example-slave pass'
-    - user:{{ base_config('user') }}
-    - cwd:  {{ base_config('home') }}
+    - name: 'buildslave create-slave slave {{ master_name }}:{{ master_port }} {{ slave_name }} {{ slave_password }}'
+    - user: {{ user }}
+    - cwd:  {{ home }}
     - env:
-      - PATH: '$PATH:/opt/buildbot/bin'
+      - PATH: '$PATH:{{ home }}/bin'
     - watch:
       - cmd: buildbot_slave_check
     - require:
@@ -40,8 +48,8 @@ buildbot_slave_upstart:
     - require:
       - sls: buildbot.base
     - context:
-        user: {{ base_config('user') }}
-        home: {{ base_config('home') }}
+        user: {{ user }}
+        home: {{ home }}
 
 buildslave_service:
   service.running:

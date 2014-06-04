@@ -1,18 +1,23 @@
 {% from 'buildbot/config.jinja' import base_config with context %}
 
-{% if base_config('install_type') == 'pip' %}
+{% set install_type = base_config('install_type') %}
+
+{% set home = base_config('home') %}
+{% set user = base_config('user') %}
+
+{% if install_type == 'pip' %}
 
 buildbot_user:
   user.present:
-    - name: {{ base_config('user') }}
-    - home: {{ base_config('home') }}
+    - name: {{ user }}
+    - home: {{ home }}
     - shell: /bin/bash
     - createhome: True
 
 
 buildbot_virtualenv:
   virtualenv.managed:
-    - name: {{ base_config('home') }}
+    - name: {{ home }}
     - user: buildbot
     - requirements: salt://buildbot/files/requirements.txt
     - require:
@@ -20,7 +25,7 @@ buildbot_virtualenv:
 
 buildbot_profile:
   file.append:
-    - name: {{ base_config('home') }}/.profile
+    - name: {{ home }}/.profile
     - require:
       - virtualenv: buildbot_virtualenv
     - text: |
