@@ -18,7 +18,7 @@ buildbot_user:
 buildbot_virtualenv:
   virtualenv.managed:
     - name: {{ home }}
-    - user: buildbot
+    - user: {{ user }}
     - requirements: salt://buildbot/files/requirements.txt
     - require:
       - user: buildbot_user
