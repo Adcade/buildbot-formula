@@ -1,9 +1,11 @@
 {% set buildbot = salt['grains.filter_by']({
     'Debian': {
         'pip': 'python-pip',
+        'virtualenv': 'python-virtualenv',
     },
     'RedHat': {
         'pip': 'python-pip',
+        'virtualenv': 'python-virtualenv',
     },
 }, merge=salt['pillar.get']('buildbot:lookup')) %}
 
