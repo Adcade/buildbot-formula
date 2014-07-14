@@ -20,13 +20,13 @@ buildbot_master:
     - user: {{ user }}
     - cwd: {{ home }}
     - env:
-      - PATH: '$PATH:/opt/buildbot/bin'
+      - PATH: '$PATH:/home/buildbot/bin'
     - watch:
       - cmd: buildbot_check_master
 
 buildbot_master_config:
   file.managed:
-    - name: /opt/buildbot/master/master.cfg
+    - name: /home/buildbot/master/master.cfg
     - user: {{ user }}
     - group:  {{ user }}
     - mode: 644
