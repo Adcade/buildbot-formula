@@ -8,6 +8,9 @@
 
 {% if install_type == 'pip' %}
 
+include:
+  - nvm
+
 buildbot_packages:
   pkg.installed:
     - names:
