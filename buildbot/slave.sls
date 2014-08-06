@@ -10,13 +10,6 @@
 
 {% if base_config('install_slave') == 'true' %}
 
-buildbot_slave_check:
-  cmd.run:
-    - name: "[ -d {{ home }}/slave ]; if [ $? == 1 ]; then echo -e '\nchanged=true'; fi"
-    - stateful: True
-    - require:
-      - sls: buildbot.base
-
 buildbot_slave_pip:
   pip.installed:
     - name: buildbot-slave
@@ -24,18 +17,6 @@ buildbot_slave_pip:
     - bin_env: {{ home }}/bin/pip
     - require:
       - sls: buildbot.base
-
-buildbot_slave:
-  cmd.wait:
-    - name: 'buildslave create-slave slave {{ master_name }}:{{ master_port }} {{ slave_name }} {{ slave_password }}'
-    - user: {{ user }}
-    - cwd:  {{ home }}
-    - env:
-      - PATH: '$PATH:{{ home }}/bin'
-    - watch:
-      - cmd: buildbot_slave_check
-    - require:
-      - pip: buildbot_slave_pip
 
 buildbot_slave_upstart:
   file.managed:
@@ -50,11 +31,5 @@ buildbot_slave_upstart:
     - context:
         user: {{ user }}
         home: {{ home }}
-
-buildslave_service:
-  service.running:
-    - name: buildslave
-    - require:
-      - file: buildbot_slave_upstart
 
 {% endif %}

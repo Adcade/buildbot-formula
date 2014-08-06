@@ -7,6 +7,12 @@
 
 {% if install_type == 'pip' %}
 
+python-virtualenv:
+  pkg.installed
+
+python-dev:
+  pkg.installed
+
 buildbot_user:
   user.present:
     - name: {{ user }}
@@ -22,6 +28,8 @@ buildbot_virtualenv:
     - requirements: salt://buildbot/files/requirements.txt
     - require:
       - user: buildbot_user
+      - pkg: python-virtualenv
+      - pkg: python-dev
 
 buildbot_profile:
   file.append:
