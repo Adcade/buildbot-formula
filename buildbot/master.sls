@@ -1,24 +1,36 @@
-{% from 'buildbot/config.jinja' import base_config, master_config with context %}
+{% from 'buildbot/config.jinja' import defaults with context %}
 
-{% set home = base_config('home') %}
-{% set user = base_config('user') %}
+buildbot:
+  pkg.installed
 
-{% set conf_path = master_config('conf_path') %}
+{{ defaults('MASTER_BASEDIR') }}:
+  file.directory:
+    - user: {{ defaults('MASTER_USER') }}
+    - group: {{ defaults('MASTER_USER') }}
+    - mode: 755
+    - makedirs: true
+    - require:
+      - pkg: buildbot
 
-{% if base_config('install_master') == 'true' %}
+create_buildmaster:
+  cmd.wait:
+    - name: buildbot create-master master/
+    - user: {{ defaults('MASTER_USER') }}
+    - cwd: {{ defaults('MASTER_BASEDIR') }}
+    - watch:
+      - pkg: buildbot
 
-buildbot_master_upstart:
+/etc/default/buildmaster:
   file.managed:
-    - name: /etc/init/buildbot.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
-    - source: salt://buildbot/files/buildbot.conf
-    - require:
-      - sls: buildbot.base
+    - source: salt://buildbot/files/buildmaster
     - context:
-        user: {{ user }}
-        home: {{ home }}
-
-{% endif %}
+      MASTER_ENABLED: {{ defaults('MASTER_ENABLED') }}
+      MASTER_NAME: {{ defaults('MASTER_NAME') }}
+      MASTER_USER: {{ defaults('MASTER_USER') }}
+      MASTER_BASEDIR: {{ defaults('MASTER_BASEDIR') }}
+      MASTER_OPTIONS: {{ defaults('MASTER_OPTIONS') }}
+      MASTER_PREFIXCMD: {{ defaults('MASTER_PREFIXCMD') }}

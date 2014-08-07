@@ -1,36 +1,23 @@
-{% set base = {
-    'user': 'buildbot',
-    'home': '/opt/buildbot',
-    'install_type': 'pip',
-    'install_master': 'true',
-    'install_slave': 'true',
+{% set default_options = {
+    'MASTER_ADDRESS': 'localhost',
+    'MASTER_USERNAME': 'buildbot',
+    'MASTER_PASSWORD': 'buildbot',
+    'MASTER_ENABLED': 1,
+    'MASTER_NAME': 'buildmaster',
+    'MASTER_USER': 'buildbot',
+    'MASTER_BASEDIR': '/opt/buildbot/master',
+    'MASTER_OPTIONS': '',
+    'MASTER_PREFIXCMD': '',
+    'SLAVE_ENABLED': 1,
+    'SLAVE_NAME': 'buildslave #1',
+    'SLAVE_USER': 'buildbot',
+    'SLAVE_BASEDIR': '/opt/buildbot/slave',
+    'SLAVE_OPTIONS': '',
+    'SLAVE_PREFIXCMD': ''
   }
 %}
 
-{% set master = {
-    'conf_path': 'salt://buildbot/files/master.cfg'
-  }
-%}
-
-{% set slave = {
-  'master_name': salt['grains.get']('fqdn'),
-  'master_port': 9989,
-  'slave_name': salt['grains.get']('fqdn'),
-  'slave_password': 'buildbot'
-  }
-%}
-
-{%- macro base_config(key) -%}
-  {%- set pillar_key = 'buildbot:base:' ~ key -%}
-  {{ salt['pillar.get'](pillar_key, base.get(key)) }}
-{%- endmacro -%}
-
-{%- macro slave_config(key) -%}
-  {%- set pillar_key = 'buildbot:slave:' ~ key -%}
-  {{ salt['pillar.get'](pillar_key, slave.get(key)) }}
-{%- endmacro -%}
-
-{%- macro master_config(key) -%}
-  {%- set pillar_key = 'buildbot:master:' ~ key -%}
-  {{ salt['pillar.get'](pillar_key, master.get(key)) }}
+{%- macro defaults(key) -%}
+  {%- set pillar_key = 'buildbot:defaults:' ~ key -%}
+  {{ salt['pillar.get'](pillar_key, default_options.get(key)) }}
 {%- endmacro -%}

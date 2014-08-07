@@ -1,35 +1,36 @@
-{% from 'buildbot/config.jinja' import base_config, slave_config with context %}
+{% from 'buildbot/config.jinja' import defaults with context %}
 
-{% set master_name = slave_config('master_name') %}
-{% set master_port = slave_config('master_port') %}
-{% set slave_name = slave_config('slave_name') %}
-{% set slave_password = slave_config('slave_password') %}
+buildbot-slave:
+  pkg.installed
 
-{% set home = base_config('home') %}
-{% set user = base_config('user') %}
-
-{% if base_config('install_slave') == 'true' %}
-
-buildbot_slave_pip:
-  pip.installed:
-    - name: buildbot-slave
-    - user: {{ user }}
-    - bin_env: {{ home }}/bin/pip
+{{ defaults('SLAVE_BASEDIR') }}:
+  file.directory:
+    - user: {{ defaults('SLAVE_USER') }}
+    - group: {{ defaults('SLAVE_USER') }}
+    - mode: 755
+    - makedirs: true
     - require:
-      - sls: buildbot.base
+      - pkg: buildbot-slave
 
-buildbot_slave_upstart:
+create_buildslave:
+  cmd.wait:
+    - name: buildslave create-slave slave/ {{ defaults('MASTER_ADDRESS') }} {{ defaults('MASTER_USERNAME') }} {{ defaults('MASTER_PASSWORD') }}
+    - user: {{ defaults('MASTER_USER') }}
+    - cwd: {{ defaults('MASTER_BASEDIR') }}
+    - watch:
+      - pkg: buildbot-slave
+
+/etc/default/buildslave:
   file.managed:
-    - name: /etc/init/buildslave.conf
     - user: root
     - group: root
     - mode: 644
     - template: jinja
-    - source: salt://buildbot/files/buildslave.conf
-    - require:
-      - sls: buildbot.base
+    - source: salt://buildbot/files/buildslave
     - context:
-        user: {{ user }}
-        home: {{ home }}
-
-{% endif %}
+      SLAVE_ENABLED: {{ defaults('SLAVE_ENABLED') }}
+      SLAVE_NAME: {{ defaults('SLAVE_NAME') }}
+      SLAVE_USER: {{ defaults('SLAVE_USER') }}
+      SLAVE_BASEDIR: {{ defaults('SLAVE_BASEDIR') }}
+      SLAVE_OPTIONS: {{ defaults('SLAVE_OPTIONS') }}
+      SLAVE_PREFIXCMD: {{ defaults('SLAVE_PREFIXCMD') }}
