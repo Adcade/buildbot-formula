@@ -3,23 +3,6 @@
 buildbot-slave:
   pkg.installed
 
-{{ defaults('SLAVE_BASEDIR') }}:
-  file.directory:
-    - user: {{ defaults('SLAVE_USER') }}
-    - group: {{ defaults('SLAVE_USER') }}
-    - mode: 755
-    - makedirs: true
-    - require:
-      - pkg: buildbot-slave
-
-create_buildslave:
-  cmd.wait:
-    - name: buildslave create-slave slave/ {{ defaults('MASTER_ADDRESS') }} {{ defaults('MASTER_USERNAME') }} {{ defaults('MASTER_PASSWORD') }}
-    - user: {{ defaults('MASTER_USER') }}
-    - cwd: {{ defaults('MASTER_BASEDIR') }}
-    - watch:
-      - pkg: buildbot-slave
-
 /etc/default/buildslave:
   file.managed:
     - user: root
