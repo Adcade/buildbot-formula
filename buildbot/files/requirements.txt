@@ -1,0 +1,4 @@
+buildbot==0.8.9
+buildbot-slave==0.8.9
+PyYAML==3.11
+redis==2.10.3

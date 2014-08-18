@@ -1,19 +1,23 @@
 {% from 'buildbot/config.jinja' import defaults with context %}
 
 buildbot:
-  pkg.installed
+  user.present:
+    - shell: /bin/bash
+    - home: /opt/buildbot
+    - createhome: true
 
-/etc/default/buildmaster:
+/opt/buildbot/.bash_profile:
   file.managed:
-    - user: root
-    - group: root
+    - user: buildbot
+    - group: buildbot
     - mode: 644
-    - template: jinja
-    - source: salt://buildbot/files/buildmaster
-    - context:
-      MASTER_ENABLED: {{ defaults('MASTER_ENABLED') }}
-      MASTER_NAME: {{ defaults('MASTER_NAME') }}
-      MASTER_USER: {{ defaults('MASTER_USER') }}
-      MASTER_BASEDIR: {{ defaults('MASTER_BASEDIR') }}
-      MASTER_OPTIONS: {{ defaults('MASTER_OPTIONS') }}
-      MASTER_PREFIXCMD: {{ defaults('MASTER_PREFIXCMD') }}
+    - source: salt://buildbot/files/bash_profile
+    - require:
+      - user: buildbot
+
+/opt/buildbot/.virtualenv:
+  virtualenv.managed:
+    - user: buildbot
+    - requirements: salt://buildbot/files/requirements.txt
+    - require:
+      - user: buildbot
